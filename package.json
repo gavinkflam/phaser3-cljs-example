@@ -1,0 +1,11 @@
+{
+  "name": "phaser3-cljs-example",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "shadow-cljs": "2.11.1"
+  },
+  "dependencies": {
+    "phaser": "3.24.1"
+  }
+}
