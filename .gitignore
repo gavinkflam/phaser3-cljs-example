@@ -1,7 +1,9 @@
+.cpcache/
 node_modules/
 public/js
 
 *.log
+.eastwood
 .shadow-cljs
 .nrepl-*
 .DS_Store

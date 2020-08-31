@@ -1,0 +1,43 @@
+{:paths ["src"]
+
+ :project-version "0.1.0"
+
+ :deps
+ {org.clojure/clojurescript {:mvn/version "1.10.758"}}
+
+ :aliases
+ {:dev
+  {:extra-paths ["dev" "test"]}
+
+  ; clj -A:cljfmt check src test
+  ; clj -A:cljfmt fix src test
+  :cljfmt
+  {:main-opts ["-m" "cljfmt.main"]
+   :extra-deps
+   {cljfmt {:mvn/version "0.6.8"}}}
+
+  ; clj -A:kondo
+  :kondo
+  {:main-opts ["-m" "clj-kondo.main" "--lint" "src" "test"]
+   :extra-deps
+   {clj-kondo {:mvn/version "2020.07.29"}}}
+
+  ; clj -A:eastwood
+  :eastwood
+  {:main-opts ["-m" "eastwood.lint" {:source-paths ["src"] :test-paths ["test"]}]
+   :extra-deps
+   {jonase/eastwood {:mvn/version "0.3.11"}}}
+
+  ; clj -A:kibit
+  :kibit
+  {:main-opts ["-e" "(require,'[kibit.driver,:as,k]),(k/external-run,[\"src\",\"test\"],nil)"]
+   :extra-deps
+   {jonase/kibit {:mvn/version "0.1.8"}}}
+
+  ; clj -A:dev:shadow-cljs watch platformer
+  ; clj -A:dev:shadow-cljs clj-repl
+  ; clj -A:shadow-cljs compile platformer
+  :shadow-cljs
+  {:main-opts ["-m" "shadow.cljs.devtools.cli"]
+   :extra-deps
+   {thheller/shadow-cljs {:mvn/version "2.11.1"}}}}}

@@ -1,9 +1,10 @@
-{:source-paths ["src" "test" "dev"]
- :dependencies []
+{:deps true
  :dev-http {8080 "public/"}
- :builds {:platformer {:output-dir "public/js/"
-                       :asset-path "/js"
-                       :target :browser
-                       :modules {:main {:entries [platformer.main]
-                                        :init-fn platformer.main/main!}}
-                       :devtools {:after-load platformer.main/reload!}}}}
+ :builds
+ {:platformer
+  {:output-dir "public/js/"
+   :asset-path "/js"
+   :target :browser
+   :modules {:main {:entries [platformer.main]
+                    :init-fn platformer.main/main!}}
+   :devtools {:after-load platformer.main/reload!}}}}
