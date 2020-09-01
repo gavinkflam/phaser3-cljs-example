@@ -3,7 +3,8 @@
  :project-version "0.1.0"
 
  :deps
- {org.clojure/clojurescript {:mvn/version "1.10.758"}}
+ {org.clojure/clojurescript  {:mvn/version "1.10.758"}
+  applied-science/js-interop {:mvn/version "0.2.7"}}
 
  :aliases
  {:dev

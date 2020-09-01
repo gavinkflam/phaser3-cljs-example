@@ -1,5 +1,7 @@
 (ns platformer.main
-  (:require ["phaser" :as phaser]))
+  (:require [applied-science.js-interop :as j]
+            ["phaser" :as phaser]
+            [platformer.math :as m]))
 
 ;; Game actors
 
@@ -21,48 +23,46 @@
 ;; Game events
 
 (defn collect-star
-  [player star]
+  [_ star]
 
   ; Destroy star
-  (.disableBody star true true)
+  (j/call star :disableBody true true)
 
   ; Update score
   (swap! score + 10)
-  (.setText @score-text (str "Score: " @score))
+  (j/call @score-text :setText (str "Score: " @score))
 
   ; When all stars were collected
-  (when (zero? (.countActive @stars true))
+  (when (zero? (j/call @stars :countActive true))
     ; Release a new batch of stars to collect
-    (doseq [star (.. @stars -children -entries)]
-      (.enableBody star true (.-x star) 0 true true))
+    (doseq [star (j/get-in @stars [:children :entries])]
+      (j/call star :enableBody true (j/get star :x) 0 true true))
 
     ; Release a bomb
-    (let [x (if (< (.-x player) 400)
-              (.. phaser -Math (Between 400 800))
-              (.. phaser -Math (Between   0 400)))
-          bomb (.create @bombs x 16 "bomb")]
-      (doto bomb
-        (.setBounce 1)
-        (.setCollideWorldBounds true)
-        (.setVelocity (.. phaser -Math (Between -200 200))
-                      20))
-      (set! (.-allowGravity bomb) false)))
+    (let [x (if (< (j/get @player :x) 400)
+              (m/rand-int-range 400 800)
+              (m/rand-int-range 0   400))]
+      (doto (j/call @bombs :create x 16 "bomb")
+        (j/call :setBounce 1)
+        (j/call :setCollideWorldBounds true)
+        (j/call :setVelocity (m/rand-int-range -200 200) 20)
+        (j/assoc! :allowGravity false))))
 
   nil)
 
 (defn hit-bomb
-  [scene player bomb]
+  [scene _ _]
 
   ; Stop the game
-  (.. scene -physics pause)
+  (j/call-in scene [:physics :pause])
 
   ; Show player in red
-  (.setTint player 0xff0000)
-  (.. player -anims (play "turn"))
+  (j/call @player :setTint 0xff0000)
+  (j/call-in @player [:anims :play] "turn")
 
   ; Game over
   (reset! game-over true)
-  
+
   nil)
 
 ;; Game lifecycle
@@ -70,13 +70,13 @@
 (defn preload-game
   [scene]
 
-  (doto (.-load scene)
-    (.image "sky"    "assets/sky.png")
-    (.image "ground" "assets/platform.png")
-    (.image "star"   "assets/star.png")
-    (.image "bomb"   "assets/bomb.png")
-    (.spritesheet "dude" "assets/dude.png"
-                  #js {:frameWidth 32 :frameHeight 48}))
+  (j/call-in scene [:load :image] "sky"    "assets/sky.png")
+  (j/call-in scene [:load :image] "ground" "assets/platform.png")
+  (j/call-in scene [:load :image] "star"   "assets/star.png")
+  (j/call-in scene [:load :image] "bomb"   "assets/bomb.png")
+  (j/call-in scene [:load :spritesheet]
+             "dude" "assets/dude.png"
+             #js {:frameWidth 32 :frameHeight 48})
 
   nil)
 
@@ -84,95 +84,101 @@
   [scene]
 
   ; Sky background
-  (.. scene -add (image 400 300 "sky"))
+  (j/call-in scene [:add :image] 400 300 "sky")
 
   ; Platforms
-  (reset! platforms (.. scene -physics -add staticGroup))
-  (doto @platforms
-    ; Ground
-    (.. (create 400 568 "ground") (setScale 2) refreshBody)
+  (reset! platforms (j/call-in scene [:physics :add :staticGroup]))
 
-    ; Ledges
-    (.create 600 400 "ground")
-    (.create 50  250 "ground")
-    (.create 750 220 "ground"))
+  ; Ground
+  (-> @platforms
+      (j/call :create 400 568 "ground")
+      (j/call :setScale 2)
+      (j/call :refreshBody))
+
+  ; Ledges
+  (doto @platforms
+    (j/call :create 600 400 "ground")
+    (j/call :create 50  250 "ground")
+    (j/call :create 750 220 "ground"))
 
   ; Player
-  (reset! player (.. scene -physics -add (sprite 100 450 "dude")))
+  (reset! player (j/call-in scene [:physics :add :sprite] 100 450 "dude"))
   (doto @player
-    (.setBounce 0.2)
-    (.setCollideWorldBounds true))
+    (j/call :setBounce 0.2)
+    (j/call :setCollideWorldBounds true))
 
   ; Player animations
-  (doto (.-anims scene)
-    (.create #js {:key "left"
-                  :frames (.generateFrameNumbers (.-anims scene) "dude"
-                                                 #js {:start 0 :end 3})
-                  :frameRate 10
-                  :repeat -1})
-    (.create #js {:key "right"
-                  :frames (.generateFrameNumbers (.-anims scene) "dude"
-                                                 #js {:start 5 :end 8})
-                  :frameRate 10
-                  :repeat -1})
-    (.create #js {:key "turn"
-                  :frames #js [#js {:key "dude" :frame 4}]
-                  :frameRate 20}))
+  (doto (j/get scene :anims)
+    (j/call :create #js {:key "left"
+                         :frames (j/call-in scene [:anims :generateFrameNumbers]
+                                            "dude"
+                                            #js {:start 0 :end 3})
+                         :frameRate 10
+                         :repeat -1})
+    (j/call :create #js {:key "right"
+                         :frames (j/call-in scene [:anims :generateFrameNumbers]
+                                            "dude"
+                                            #js {:start 5 :end 8})
+                         :frameRate 10
+                         :repeat -1})
+    (j/call :create #js {:key "turn"
+                         :frames #js [#js {:key "dude" :frame 4}]
+                         :frameRate 20}))
 
   ; Input events
-  (reset! cursors (.. scene -input -keyboard createCursorKeys))
+  (reset! cursors (j/call-in scene [:input :keyboard :createCursorKeys]))
 
   ; Spawn 12 Stars that are evenly spaced 70 pixels apart along the x axis
-  (reset! stars (.. scene -physics -add
-                    (group #js {:key "star"
+  (reset! stars (j/call-in scene [:physics :add :group]
+                           #js {:key "star"
                                 :repeat 11
-                                :setXY #js {:x 12 :y 0 :stepX 70}})))
-  (doseq [star (.. @stars -children -entries)]
-    (.setBounceY star
-                 (.. phaser -Math (FloatBetween 0.4 0.8))))
+                                :setXY #js {:x 12 :y 0 :stepX 70}}))
+  (doseq [star (j/get-in @stars [:children :entries])]
+    (j/call star :setBounceY (m/rand-float-range 0.4 0.8)))
 
   ; Bombs
-  (reset! bombs (.. scene -physics -add group))
+  (reset! bombs (j/call-in scene [:physics :add :group]))
 
   ; Scores
   (reset! score-text
-          (.. scene -add (text 16 16 "Score: 0"
-                               #js {:fontSize "32px" :fill "#000"})))
+          (j/call-in scene [:add :text]
+                     16 16 "Score: 0"
+                     #js {:fontSize "32px" :fill "#000"}))
 
-  (doto (.. scene -physics -add)
+  (doto (j/get-in scene [:physics :add])
     ; Colliders
-    (.collider @player @platforms)
-    (.collider @stars @platforms)
-    (.collider @bombs @platforms)
-    (.overlap  @player @stars collect-star nil)
-    (.collider @player @bombs (partial hit-bomb scene) nil))
+    (j/call :collider @player @platforms)
+    (j/call :collider @stars  @platforms)
+    (j/call :collider @bombs  @platforms)
+    (j/call :overlap  @player @stars collect-star nil)
+    (j/call :collider @player @bombs (partial hit-bomb scene) nil))
 
   nil)
 
 (defn update-game
-  [scene]
+  [_]
 
   ; Controlling horizontal movements
   (cond
-    (.. @cursors -left -isDown)
+    (j/get-in @cursors [:left :isDown])
     (doto @player
-      (.setVelocityX -160)
-      (.. -anims (play "left" true)))
+      (j/call :setVelocityX -160)
+      (j/call-in [:anims :play] "left"))
 
-    (.. @cursors -right -isDown)
+    (j/get-in @cursors [:right :isDown])
     (doto @player
-      (.setVelocityX 160)
-      (.. -anims (play "right" true)))
+      (j/call :setVelocityX 160)
+      (j/call-in [:anims :play] "right"))
 
     :else
     (doto @player
-      (.setVelocityX 0)
-      (.. -anims (play "turn"))))
+      (j/call :setVelocityX 0)
+      (j/call-in [:anims :play] "turn")))
 
   ; Controlling jump
-  (if (and (.. @cursors -up -isDown)
-           (.. @player -body -touching -down))
-    (.setVelocityY @player -330))
+  (when (and (j/get-in @cursors [:up :isDown])
+             (j/get-in @player  [:body :touching :down]))
+    (j/call @player :setVelocityY -330))
 
   nil)
 
@@ -180,15 +186,15 @@
 
 (def config
   #js
-  {:type   phaser/AUTO
-   :width  800
-   :height 600
-   :physics #js {:default "arcade"
-                 :arcade #js {:gravity #js {:y 300}
-                              :debug false}}
-   :scene  #js {:preload #(this-as t (preload-game t))
-                :create  #(this-as t (create-game t))
-                :update  #(this-as t (update-game t))}})
+   {:type    phaser/AUTO
+    :width   800
+    :height  600
+    :physics #js {:default "arcade"
+                  :arcade #js {:gravity #js {:y 300}
+                               :debug   false}}
+    :scene   #js {:preload #(this-as t (preload-game t))
+                  :create  #(this-as t (create-game t))
+                  :update  #(this-as t (update-game t))}})
 
 ;; shadow-cljs lifecycle
 
