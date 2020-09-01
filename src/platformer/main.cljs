@@ -163,12 +163,12 @@
     (j/get-in @cursors [:left :isDown])
     (doto @player
       (j/call :setVelocityX -160)
-      (j/call-in [:anims :play] "left"))
+      (j/call-in [:anims :play] "left" true))
 
     (j/get-in @cursors [:right :isDown])
     (doto @player
       (j/call :setVelocityX 160)
-      (j/call-in [:anims :play] "right"))
+      (j/call-in [:anims :play] "right" true))
 
     :else
     (doto @player
