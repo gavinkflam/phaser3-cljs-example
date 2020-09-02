@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "phaser3-cljs-example",
+    "slug": "phaser3-cljs-example",
+    "version": "0.1.0",
+    "entryPoint": "./app-build/index.js",
+    "orientation": "portrait",
+    "icon": "./public/assets/icon.png",
+    "splash": {
+      "image": "./public/assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "web": {
+      "favicon": "./public/assets/favicon.png"
+    }
+  }
+}

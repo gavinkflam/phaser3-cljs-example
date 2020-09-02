@@ -1,4 +1,6 @@
 .cpcache/
+.expo/
+app-build/
 node_modules/
 public/js
 

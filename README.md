@@ -5,8 +5,9 @@
 This is a simple HTML5 game built with [Phaser 3][phaser3],
 [ClojureScript][cljs] and [shadow-cljs][shadow-cljs].
 
-The game is derived from [Making your first Phaser 3 game][phaser-tutorial]
-tutorial.
+It includes a React Native build via [Expo][expo].
+
+Note: The game is derived from [Making your first Phaser 3 game][phaser-tutorial] tutorial.
 
 ## Requirements
 
@@ -30,10 +31,17 @@ tutorial.
 3. Head to http://localhost:8080.
 4. Connect a ClojureScript REPL to the runtime via `(shadow/repl :platformer)`
 
+## Run Expo development mode (React Native)
+
+1. `clj -A:dev:app:shadow-cljs watch app`
+2. `npx expo start` (From another terminal)
+3. Scan the QR code from your phone, or start an emulator
+
 ## Read more
 
 * About shadow-cljs: [User’s Guide][shadow-cljs-users-guide]
 * About Phaser 3: [Learn][phaser3-learn], [API Doc][phaser3-api-doc]
+* About Expo: [Learn][expo-learn]
 
 ## License
 
@@ -41,9 +49,11 @@ BSD3
 
 [phaser3]: https://phaser.io
 [cljs]: https://clojurescript.org
-[shadow-cljs]: https://shadow-cljs.org/
+[shadow-cljs]: https://shadow-cljs.org
+[expo]: https://expo.io
 [phaser-tutorial]: https://phaser.io/tutorials/making-your-first-phaser-3-game/part1
 [clojure-cli]: https://clojure.org/guides/getting_started
 [shadow-cljs-users-guide]: https://shadow-cljs.github.io/docs/UsersGuide.html
 [phaser3-learn]: https://phaser.io/learn
 [phaser3-api-doc]: https://photonstorm.github.io/phaser3-docs/index.html
+[expo-learn]: https://expo.io/learn

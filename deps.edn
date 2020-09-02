@@ -10,8 +10,8 @@
  {:dev
   {:extra-paths ["dev" "test"]}
 
-  ; clj -A:cljfmt check src test
-  ; clj -A:cljfmt fix src test
+  ; clj -A:cljfmt check src app test
+  ; clj -A:cljfmt fix src app test
   :cljfmt
   {:main-opts ["-m" "cljfmt.main"]
    :extra-deps
@@ -19,19 +19,19 @@
 
   ; clj -A:kondo
   :kondo
-  {:main-opts ["-m" "clj-kondo.main" "--lint" "src" "test"]
+  {:main-opts ["-m" "clj-kondo.main" "--lint" "src" "app" "test"]
    :extra-deps
    {clj-kondo {:mvn/version "2020.07.29"}}}
 
   ; clj -A:eastwood
   :eastwood
-  {:main-opts ["-m" "eastwood.lint" {:source-paths ["src"] :test-paths ["test"]}]
+  {:main-opts ["-m" "eastwood.lint" {:source-paths ["src" "app"] :test-paths ["test"]}]
    :extra-deps
    {jonase/eastwood {:mvn/version "0.3.11"}}}
 
   ; clj -A:kibit
   :kibit
-  {:main-opts ["-e" "(require,'[kibit.driver,:as,k]),(k/external-run,[\"src\",\"test\"],nil)"]
+  {:main-opts ["-e" "(require,'[kibit.driver,:as,k]),(k/external-run,[\"src\",\"app\",\"test\"],nil)"]
    :extra-deps
    {jonase/kibit {:mvn/version "0.1.8"}}}
 
@@ -41,4 +41,12 @@
   :shadow-cljs
   {:main-opts ["-m" "shadow.cljs.devtools.cli"]
    :extra-deps
-   {thheller/shadow-cljs {:mvn/version "2.11.1"}}}}}
+   {thheller/shadow-cljs {:mvn/version "2.11.1"}}}
+
+  ; clj -A:dev:app:shadow-cljs watch app
+  ; clj -A:dev:app:shadow-cljs clj-repl
+  ; clj -A:app:shadow-cljs compile app
+  :app
+  {:extra-paths ["app"]
+   :extra-deps
+   {reagent {:mvn/version "1.0.0-alpha2"}}}}}

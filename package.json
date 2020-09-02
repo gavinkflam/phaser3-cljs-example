@@ -3,9 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "@babel/core": "^7.8.6",
+    "babel-preset-expo": "~8.1.0",
+    "expo-cli": "^3.26.0",
     "shadow-cljs": "2.11.1"
   },
   "dependencies": {
-    "phaser": "3.24.1"
+    "expo": "~38.0.8",
+    "expo-status-bar": "^1.0.2",
+    "phaser": "3.24.1",
+    "react": "~16.11.0",
+    "react-dom": "~16.11.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
+    "react-native-web": "~0.11.7"
   }
 }
